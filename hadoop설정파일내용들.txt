@@ -1,0 +1,71 @@
+7. hadoop_env.sh 파일 끝에 다음 내용을 추가한다.
+export JAVA_HOME=/usr/local/java
+export HADOOP_HOME=/root/hadoop-2.7.7
+export HADOOP_HEAPSIZE=500
+
+8. mapred_env.sh 파일 끝에 다음 내용을 추가한다.
+export JAVA_HOME=/usr/local/java
+export HADOOP_JOB_HISTORYSERVER_HEAPSIZE=500
+export HADOOP_HOME=/root/hadoop-2.7.7
+
+9. yarn_env.sh 파일 끝에 다음 내용을 추가한다.
+export JAVA_HOME=/usr/local/java
+export HADOOP_HOME=/root/hadoop-2.7.7
+export YARN_HEAPSIZE=500
+
+10. core-site.xml 에 다음 내용을 편집한다.
+<configuration>
+   <property>
+      <name>fs.defaultFS</name>
+      <value>hdfs://master:9000/</value>
+   </property>   
+</configuration>
+
+11. hdfs-site.xml 에 다음 내용을 편집한다.
+<configuration>
+   <property>
+      <name>dfs.replication</name>
+      <value>3</value>
+   </property>
+   <property>
+      <name>dfs.name.dir</name>
+      <value>/root/hadoop-2.7.7/hdfs/name</value>
+   </property>
+   <property>
+      <name>dfs.data.dir</name>
+      <value>/root/hadoop-2.7.7/hdfs/data</value>
+   </property>
+   <property>
+      <name>dfs.support.append</name>
+      <value>true</value>
+   </property>
+   <property>
+      <name>dfs.namenode.secondary.http-address</name>
+      <value>slave1:50090</value>
+   </property>
+   <property>
+      <name>dfs.namenode.secondary.https-address</name>
+      <value>slave1:50091</value>
+   </property> 
+</configuration>
+
+12. mapred-site.xml 에 다음 내용을 편집한다.
+<configuration>
+   <property>
+      <name>mapreduce.framework.name</name>
+      <value>yarn</value>
+   </property>
+   <property>
+      <name>yarn.resourcemanager.hostname</name>
+      <value>master</value>
+   </property>
+</configuration>
+
+13. yarn-site.xml 에 다음 내용을 편집한다. 
+<configuration>
+<!-- Site specific YARN configuration properties -->
+   <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+   </property>
+</configuration>
