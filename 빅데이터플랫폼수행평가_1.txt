@@ -1,0 +1,13 @@
+[ Hadoop HDFS 실습 : 빅데이터플랫폼 수행평가(1) ]
+
+1. 클래스명 : TomcatLogHDFS_Save
+2. 프로그램 형식 : Java Application
+3. 기능
+    Tomcat의 모든 ACCESS LOG 파일을 하나의 파일로 만든다.
+    (파일의 생성 위치는 임의로 정한다.)
+    파일명 : tomcat_access_log.txt
+4. HDFS의 /edudata 폴더에 저장한다.
+5. 저장이 끝난 다음에는 저장된 파일의 사이즈를 화면에 표준 출력하고 종료한다.
+6. 구현 소스를 메일로 제출한다.(unicodaum@hanmail.net)
+
+

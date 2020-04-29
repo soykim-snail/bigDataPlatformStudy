@@ -10,7 +10,9 @@
 
 > 인용구 : ctrl+shift+q
 
-코드펜스 : ctl+shift+k
+> 인용구 : `>`
+
+코드펜스 : ctrl+shift+k
 
 ```html
 <script scr="http://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -62,6 +64,10 @@ $$
 각주 테스트입니다. [^주1]
 
 [^주1]: 이곳에 주석을 작성합니다.
+
+(w3schools)[www.w3schools.com]
+
+[www.w3schools.com]:이런저런것들입니다.
 
 
 
@@ -212,6 +218,15 @@ $$
 `ifconfig` : 통신환경 보기
 `systemctl restart network` : 네트워크 재시작
 
+`ctrl+d` : 로그아웃
+
+`whoami` : 어느 계정으로 로그인되었니?
+
+`hostname` : 내컴 이름 알려줘
+
+`ps` : process status 알려줘
+`jps` : java로 구동되는 process status 알려줘
+
 
 
 ### IP 주소 고정하기
@@ -319,14 +334,22 @@ MapReduce (*Map `-->` Reduce*) : 클러스터 환경에서 파일 병렬처리 �
 
 ### Hadoop HDFS 명령어들
 
-hdfs dfs -ls
-				-lsr
-				-mkdir
-				-cat
-				-put
-				-get
-				-rm
+hdfs dfs -ls  
+				-lsr    (-ls -R)  
+				-mkdir  
+				-cat  
+				-put  
+				-get  
+				-rm  
+				-rmr   (-rm -R)   
+				-tail  
+				-chmod  
 				……
+
+
+
+`start-dfs.sh` : hdfs 데이터시스템 시작
+`stop-dfs.sh` : hdfs 데이터시스템 종료
 
 ### Hadoop 설치
 
@@ -349,7 +372,19 @@ xxx-site.xml : <configuration> 정보 편집
 > - mapred-site.xml
 > - yarn-site.xml
 
-​			
+slaves 파일을 다음으로 변경 ( *\$HADOOP_HOME/etc/hadoop* 위치)
+누가 슬래이브들인지 알려주자!!
+
+> slave1
+> slave2
+> slave3	
+
+masters 파일을 생성하고 다음을 저장 ( *\$HADOOP_HOME/etc/hadoop* 위치)
+누가 secondary 마스터인지 알려주자!!
+
+> slave1
+
+​	
 
 2. machine 3개 복제하여 개별화 처리
 
@@ -378,4 +413,136 @@ xxx-site.xml : <configuration> 정보 편집
 > *192.168.111.130 slave1*
 > *192.168.111.140 slave2*
 > *192.168.111.150 slave3*
+
+##### Hadoop 사용
+
+- 메모리  최대한 확보
+
+용량 확보를 위해 진짜컴퓨터의 Oracle 서비스를 중단하자.  (윈도우즈 )
+슬래이브 머신들의 메모리 용량도 낮춰 놓자   (4GB –> 2GB)
+
+- 마스터에서 SSH Key를 생성하여 다른 시스템과 공유
+
+
+`ssh-keygen -t rsa` : 키 생성 (기본적으로 `/root/.ssh/id-rsa` 로 저장됨)
+`ssh-copy-id -i /root/.ssh/id_rsa.pub root@slave1` : 키 공유 (다른 머신들과 자신의 계정과도 공유해야 함)
+
+- 하둡파일시스템 초기화(포맷)
+
+`hdfs namenode -format`
+
+* 하둡서비스 구동
+
+  `start-dfs.sh`  
+  `jps` : 데몬이 제대로 수행되었는지 확인
+
+  
+
+* 하둡명령어 사용하여 데이터 조회, 저장 …
+
+  
+
+- 하둡 OverView 확인하기 (하둡이 쓰는 기본 포트번호 : *50070*)
+
+  > http://192.168.111.120:50070  
+  > http://master:50070   (ip 별칭을 사용)
+
+* 하둡시스템은 파일수정 허용하지 않음. (설정할 경우 append는 가능함)
+
+
+
+## 하둡 활용을 위한 Java Project 만들기
+
+* Java project 만들고,
+* Maven으로 적용한다. (Configure > Maven ~ )
+* Maven 설정파일에 <dependency> 추가  (https://mvnrepository.com/)
+  * hadoop-common  
+  * hadoop-client  
+
+(예제용) 톰캣서버의 로그 기록
+
+C:\soykim\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\logs
+
+
+
+https://hadoop.apache.org/docs/r2.7.7/api/index.html
+
+# site.xml 설정파일 변경 내용들
+
+- ###### core-site.xml
+
+  ```xml
+  <configuration>
+     <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://master:9000/</value>
+     </property>   
+  </configuration>
+  ```
+
+  
+
+- ###### hdfs-site.xml
+
+  ```xml
+  <configuration>
+     <property>
+        <name>dfs.replication</name>
+        <value>3</value>
+     </property>
+     <property>
+        <name>dfs.name.dir</name>
+        <value>/root/hadoop-2.7.7/hdfs/name</value>
+     </property>
+     <property>
+        <name>dfs.data.dir</name>
+        <value>/root/hadoop-2.7.7/hdfs/data</value>
+     </property>
+     <property>
+        <name>dfs.support.append</name>
+        <value>true</value>
+     </property>
+     <property>
+        <name>dfs.namenode.secondary.http-address</name>
+        <value>slave1:50090</value>
+     </property>
+     <property>
+        <name>dfs.namenode.secondary.https-address</name>
+        <value>slave1:50091</value>
+     </property> 
+  </configuration>
+  ```
+
+  
+
+- ###### mapred-site.xml
+
+  ```xml
+  <configuration>
+     <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+     </property>
+     <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>master</value>
+     </property>
+  </configuration>
+  ```
+
+  
+
+- ###### yarn-site.xml
+
+  ```xml
+  <configuration>
+  <!-- Site specific YARN configuration properties -->
+     <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+     </property>
+  </configuration>
+  ```
+
+  
 
