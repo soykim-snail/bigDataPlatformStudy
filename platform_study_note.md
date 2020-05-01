@@ -467,6 +467,63 @@ C:\soykim\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\logs
 
 https://hadoop.apache.org/docs/r2.7.7/api/index.html
 
+
+
+### Windows에서 하둡 사용
+
+1. 필요 유틸리티 설치하고, 시스템 환경변수 설정
+
+   - winutils.exe를 저장하고
+   - Path 환경변수 설정
+
+2. 이클립스 재기동
+
+3. pom.xml 편집
+
+   ```xml
+   <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
+   		<dependency>
+   			<groupId>org.apache.hadoop</groupId>
+   			<artifactId>hadoop-common</artifactId>
+   			<version>2.7.7</version>
+   		</dependency>
+   		<dependency>
+   			<groupId>org.apache.hadoop</groupId>
+   			<artifactId>hadoop-client</artifactId>
+   			<version>2.7.7</version>
+   		</dependency>
+   		<dependency>
+   			<groupId>org.apache.hadoop</groupId>
+   			<artifactId>hadoop-mapreduce-client-core</artifactId>
+   			<version>2.7.7</version>
+   		</dependency>
+   
+   		<dependency>
+   			<groupId>commons-io</groupId>
+   			<artifactId>commons-io</artifactId>
+   			<version>2.6</version>
+   		</dependency>
+   		<dependency>
+   			<groupId>org.springframework.data</groupId>
+   			<artifactId>spring-data-hadoop</artifactId>
+   			<version>2.5.0.RELEASE</version>
+   		</dependency>
+   ```
+
+4. 소스코드 복붙하기
+
+5. servlet-context.xml 파일에 추가 (  namespace에 하둡 추가)
+
+   ```xml
+   	<hadoop:configuration id="hdConf">
+   		fs.defaultFS=hdfs://192.168.111.120:9000
+   	</hadoop:configuration>
+   ```
+
+   
+
+
+
 # site.xml 설정파일 변경 내용들
 
 - ###### core-site.xml
