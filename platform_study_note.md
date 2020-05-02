@@ -265,11 +265,16 @@ BOOTPROTO = “dhcp” (*Dynamic Host Configuration Protocol*)  을 none으로 �
 > `tar xvyz jak-8xx-linux-x64.tar.gz`
 > `mv jdk1.8.x_xxx /usr/local` 
 
-바로가기파일 만든다. *ie: 심볼릭 링크를 설정한다. (`ln -s`)*
+심볼릭 링크를  `java`로 설정한다. (`ln -s`)  
+(Java 버전이 업데이트 되어도 나중에 설정바꾸기가 쉽다.)
 
 > `ln -s jdk1.8.x_xxx java` 
 
-실행 패스를 추가한다. (**/etc/profile/**) : **JAVA_HOME**에는 JDK 설치된 디렉토리 경로를, **PATH**에는 bin 디렉토리 경로를 넣어주어야 함. 
+실행 패스를 추가한다. (**/etc/profile/**[^/etc/profile/]) :   
+
+[^/etc/profile/]:전역적인 환경설정 파일
+
+**JAVA_HOME**에는 JDK 설치된 디렉토리 경로를, **PATH**에는 bin 디렉토리 경로를 넣어주어야 함. 
 
 > export JAVA_HOME=/usr/local/
 > export PATH=\$JAVA_HOME/bin:\$PATH
@@ -322,7 +327,9 @@ server.xml 수정 (port 번호 8000으로)
    - vmnetcfg.exe를 설치하고 관리자권한으로 실행
    - NAT에서 머신의 IP 주소 변경
 
-# Hadoop 사용
+# Hadoop 사용 (http://hadoop.apache.org/) - 2.7.7 버젼 사용
+
+https://hadoop.apache.org/docs/r2.7.7/hadoop-project-dist/hadoop-common/ClusterSetup.html
 
 -----
 
@@ -341,9 +348,10 @@ hdfs dfs -ls
 				-put  
 				-get  
 				-rm  
-				-rmr   (-rm -R)   
+				-rmr   (-rm -r)   
 				-tail  
-				-chmod  
+				-chmod    
+    			-mv  
 				……
 
 
@@ -355,19 +363,22 @@ hdfs dfs -ls
 
 1. 설정파일
 
-/root 디렉토리의 .bashrc에 내용 추가
+`/root` 디렉토리의 `.bashrc`에 내용 추가
+
+> export HADOOP_HOME=/root/hadoop-2.7.7  
+> export PATH=\$HADOOP_HOME/bin:\$HADOOP_HOME/sbin:\$PATH
 
 Hadoop 설정파일들에 내용 추가
 
-xxx-env.sh : PATH 정보 추가
+​	xxx-env.sh : PATH 정보 추가
 
 > - hadoop-env.sh
 > - mapred-env.sh
 > - yarn-env.sh
 
-xxx-site.xml : <configuration> 정보 편집
+​	xxx-site.xml : <configuration> 정보 편집
 
-> - core-site.xml
+> - core-site.xml  : 네임노드 정보
 > - hdfs-site.xml
 > - mapred-site.xml
 > - yarn-site.xml
@@ -522,6 +533,50 @@ https://hadoop.apache.org/docs/r2.7.7/api/index.html
 
    
 
+##### Java에서 사용가능한 하둡 API
+
+org.apache.hadoop.conf.Configuration
+
+> `void addResource(String name)` : 설정 리소스를 추가한다.  
+> `void set(String name, String value)` : key와 value 값을 설정한다.
+
+```java
+import org.apache.hadoop.conf.Configuration;
+/* 하둡 컨프 객체를 생성하고 초기화 */
+Configuration conf = new Configuration();
+conf.set("fs.defaultFS", "hdfs://192.168.111.120:9000");
+```
+
+org.apache.hadoop.fs.Path
+
+> FileSystem getFileSystem(Configuration conf) : NameNode에 의해 관리되는 FileSystem 객체를 리턴함
+
+```java
+import org.apache.hadoop.fs.Path; 
+/* 하둡 컨프객체와 하둡 패스객체로 --> 하둡 파일시스템 객체 생성 */
+Path path = new Path("/edudata/soykim/sample.csv");
+FileSystem hdfs = path.getFileSystem(conf);
+```
+
+
+
+org.apache.hadoop.fs.FileSystem
+
+> `static FileSystem get(Configuration conf)` : 주어진 컨프객체에 대한 FileSystem 객체를 리턴한다.
+> `static FileSystem get(URI uri, Configuration conf)` : 자바 URI 객체와 하둡컨프객체로 FileSystem 객체를 리턴한다.   
+> `static FileSystem get(URI uri, Configuration conf, String user)` : 
+
+```java
+import org.apache.hadoop.fs.FileSystem;
+import java.net.URI;
+/* 하둡 컨프 객체로 하둡 파일시스템 객체를 생성*/
+URI uri = URI.create("/edudata/soykim/sample.csv");
+FileSystem hdfs = FileSystem.get(uri, conf);
+// FileSystem hdfs = FileSystem.get(conf);
+```
+
+
+
 
 
 # site.xml 설정파일 변경 내용들
@@ -544,22 +599,27 @@ https://hadoop.apache.org/docs/r2.7.7/api/index.html
   ```xml
   <configuration>
      <property>
+         <!-- 파일복제 갯수 설정 -->
         <name>dfs.replication</name>
         <value>3</value>
      </property>
      <property>
+         <!-- 네임모드 위치 설정-->
         <name>dfs.name.dir</name>
         <value>/root/hadoop-2.7.7/hdfs/name</value>
      </property>
      <property>
+         <!-- 데이터노드 위치 저장-->
         <name>dfs.data.dir</name>
         <value>/root/hadoop-2.7.7/hdfs/data</value>
      </property>
      <property>
+         <!-- 어펜드기능 지원 -->
         <name>dfs.support.append</name>
         <value>true</value>
      </property>
      <property>
+         <!--세컨더리 네임노드 설정 -->
         <name>dfs.namenode.secondary.http-address</name>
         <value>slave1:50090</value>
      </property>
@@ -602,4 +662,6 @@ https://hadoop.apache.org/docs/r2.7.7/api/index.html
   ```
 
   
+
+### Hadoop MapReduce 사용하기
 
