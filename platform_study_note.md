@@ -562,8 +562,8 @@ FileSystem hdfs = path.getFileSystem(conf);
 
 org.apache.hadoop.fs.FileSystem
 
-> `static FileSystem get(Configuration conf)` : 주어진 컨프객체에 대한 FileSystem 객체를 리턴한다.
-> `static FileSystem get(URI uri, Configuration conf)` : 자바 URI 객체와 하둡컨프객체로 FileSystem 객체를 리턴한다.   
+> `static FileSystem get(Configuration conf)` :   
+> `static FileSystem get(URI uri, Configuration conf)` : .   
 > `static FileSystem get(URI uri, Configuration conf, String user)` : 
 
 ```java
@@ -664,4 +664,124 @@ FileSystem hdfs = FileSystem.get(uri, conf);
   
 
 ### Hadoop MapReduce 사용하기
+
+`$HADOOP_HOME/etc/hadoop/yarn-site.xml`에 설정 추가 (4개 머신 모두)
+
+```xml
+<property>
+	<name>yarn.resourcemanager.hostname</name>
+	<value>master</value>
+</property>
+<property>
+	<name>yarn.resourcemanager.webapp.address</name>
+	<value>${yarn.resourcemanager.hostname}:8088</value>
+</property>
+<property>
+	<name>yarn.nodemanager.resource.memory-mb</name>
+	<value>4096</value>
+</property>
+	<property>
+	<name>yarn.scheduler.minimum-allocation-mb</name>
+	<value>2048</value>
+</property>
+```
+
+실행하기
+
+1. `start-dfs.sh`와 `start-yarn.sh`로 시스템 기동
+
+2. `jps`로 데몬 확인
+
+> master : NameNode, RsourceManager  
+> slave1 : DataNode, NodeManager, SecondaryNameNode  
+> slave2 : DataNode, NodeManager  
+> slave3 : DataNode, NodeManager  
+
+
+
+**YARN** 이란? (Yet Another Resource Negotiator)
+
+….
+
+
+
+----
+
+[실습]
+
+샘플 예제
+
+Mapper 구현
+
+```java
+public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
+    private final static IntWritable one = new IntWritable(1); // 반환값 상수 1 설정
+    private Text word = new Text();
+    @Override
+    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        StringTokenizer itr = new StringTokenizer(value.toString());
+        while(itr.hasMoreTokens()){
+            word.set(itr.nextToken());
+            context.write(word, one);
+        }
+    }    
+}
+```
+
+Reducer 구현
+
+```java
+public class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
+    private IntWritable result = new IntWritable();
+    @Override
+    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException{
+    	int sum = 0;
+        for (IntWritable val : values){
+            sum += val.get(); // int로 변환해서 더하기
+        }
+        result.set(sum);
+        context.write(key, result);
+    }    
+}
+```
+
+Main Method 구현
+
+```java
+
+```
+
+> [ Hadoop MapReduce 실습 (1) ]  
+> 단어의 길이가 3자 이상이고 5자 이하의 경우에만 결과를 만들어내도록 수정한다.
+>
+> [ Hadoop MapReduce 실습 (2) ]  
+> 단어의 갯수가 4개 이상인 경우에만 결과를 만들어내도록 수정한다.
+
+
+
+[Sort 구현]
+
+FruitsResultSort.java
+
+```java
+public static void main(String[] args) throws Exception {
+    @AutoWired
+    Configuration conf;
+    FileSystem hdfs = FileSystem.get(conf);
+    FSDataInputStream in = hdfs.open(new Path("/result/fruits1/part-r-00000"));
+    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    Map<String, Integer> map = new HashMap<String, Integer>;
+    while(br.ready()){
+        String line = br.readLine();
+        String data[] = line.split("\\s+");
+        map.put(data[0], Integer.parseInt(data[1]));
+    }
+    List<String> keySetList = new ArrayList<>(map.keySet());
+    
+    ..... ......
+    /*람다식을 사용합니다~~!!*/
+    ..... .....
+        
+}
+```
 
