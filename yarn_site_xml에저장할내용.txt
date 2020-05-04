@@ -1,0 +1,16 @@
+<property>
+<name>yarn.resourcemanager.hostname</name>
+<value>master</value>
+</property>
+<property>
+<name>yarn.resourcemanager.webapp.address</name>
+<value>${yarn.resourcemanager.hostname}:8088</value>
+</property>
+<property>
+<name>yarn.nodemanager.resource.memory-mb</name>
+<value>4096</value>
+</property>
+<property>
+<name>yarn.scheduler.minimum-allocation-mb</name>
+<value>2048</value>
+</property>
