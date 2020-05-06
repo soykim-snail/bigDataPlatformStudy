@@ -253,6 +253,16 @@ BOOTPROTO = “dhcp” (*Dynamic Host Configuration Protocol*)  을 none으로 �
 `hostnamectl set-hostname <네트워크 이름>` : 컴퓨터 네트워크 이름 설정
 `cntrl c` : 강제중단
 
+`ps` : 본 터미널에서 구동한 process status   
+`ps -ef` : 전체 (**entire full**) process status  
+`ps -ef|more` : (`|` 뒤에는 또다른 명령어)   
+`ps -ef>process.txt`  : (`>` 뒤에는 파일명)  
+`ps -ef | grep init`  : “init” 들어있는 status만 출력하라 
+
+`grep`  
+
+- `grep <찾고자 하는 위치> <찾고자 하는 패턴>`: 예컨대…. `grep soykim *.java`
+
 ### JDK 1.8 설치
 
 [Java](java.sun.com) 에서 [*Linux x64 Compressed Archive* 다운로드](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html#license-lightbox)
