@@ -2,6 +2,8 @@
 
 HADOOP의 에코시스템. 속도 개선. 멀티쓰레드로 잘 처리.
 
+## Prequisite 지식
+
 #### 쓰레드란?
 
 process와 thread의 개념 대비
@@ -114,6 +116,95 @@ public class Main {
 [^functional interface]: 하나의 추상메서드만 선언된 인터페이스. `@FunctionalInterface` 어노테이션을 붙이면 컴파일 할 때 체크할 수 있음
 
 
+
+## Spark 실습용 환경설정
+
+1. 가상머신 4대 --> ==2대==
+
+> master : namenode  
+> slave1 : secondarynamenode, datanode
+
+2. 하둡의 환경 설정 변경 (모든 머신에서)
+
+   * `slaves` 파일 편집 (`$HADOOP_HOME/etc/hadoop/slaves`)
+
+   > slave1  
+   > slave2 –> ==삭제==  
+   > slave3 –> ==삭제== 
+
+   
+
+   * `hdfs-site.xml` 편집 : 복제갯수 3개 –> 1개
+
+   ><property>
+   >      <name>dfs.replication</name>
+   >      <value>==1==</value>
+   ></property>
+
+   
+
+3. 하둡파일시스템 기동
+
+   `start-dfs.sh`
+
+4. Spark 설치
+
+   * spark.apache.org 에서 다운로드
+
+   * Hadoop 버젼과 맞추자 (hadoop-2.7.x)
+
+   * tgz 압축을 풀려면 반디집 설치
+
+   * 환경변수 잡아주기
+
+     > SPARK_HOME  
+     > PATH 편집  : %SPARK_HOME%\bin  
+     > (리눅스에 설치하는 경우 `$SPARK_HOME/sbin`도 추가)
+
+   * log4j.properties 만들기  (템플릿에서 정보수정)
+     log4j.rootCategory===WARN==, console
+
+5. Spark 실행
+
+   cmd 창에서 
+
+   `spark-shell` : scala 언어로 스칼라 구동
+
+   `sc` : spark context 객체 확인
+
+   * hdfs 에서 파일 읽어오기
+
+     ```scala
+     val textFile = sc.textFile("hdfs://192.168.111.120:9000/edudata/xxx.txt")
+     ```
+
+     
+
+   * 이런저런 처리들 (쪼개고, 매핑하고, 집계) (참고: `var` 와 `val`)
+
+     ```scala
+     val count = textFile.flatMap(line => line.split("")).map(word=>(word,1)).reduceByKey(_+_)
+     ```
+
+   * 출력하기
+
+     ```scala
+     count.collect()
+     ```
+
+     
+
+* ㅇㅇㅇ
+
+
+
+#### Spark 작동 개요
+
+1. SparkContext 객체가 생성되어,
+
+2. RDD 로 변환되어,
+
+3. 일반 파일로 액션된다.
 
 
 
