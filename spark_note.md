@@ -170,7 +170,7 @@ public class Main {
 
    `spark-shell` : scala 언어로 스칼라 구동
 
-   `sc` : spark context 객체 확인
+   `sc` : 자동 생성된 spark context 객체 확인
 
    * hdfs 에서 파일 읽어오기
 
@@ -178,20 +178,18 @@ public class Main {
      val textFile = sc.textFile("hdfs://192.168.111.120:9000/edudata/xxx.txt")
      ```
 
-     
-
-   * 이런저런 처리들 (쪼개고, 매핑하고, 집계) (참고: `var` 와 `val`)
+     이런저런 처리들 (쪼개고, 매핑하고, 집계) (참고: `var` 와 `val`)
 
      ```scala
-     val count = textFile.flatMap(line => line.split("")).map(word=>(word,1)).reduceByKey(_+_)
+  val count = textFile.flatMap(line => line.split("")).map(word=>(word,1)).reduceByKey(_+_)
      ```
-
+   
    * 출력하기
 
      ```scala
-     count.collect()
+  count.collect()
      ```
-
+   
      
 
 * ㅇㅇㅇ
@@ -204,7 +202,29 @@ public class Main {
 
 2. RDD 로 변환되어,
 
+   1. Resilient Distributed DataSet
+
 3. 일반 파일로 액션된다.
+
+   
+
+#### Transformation vs. Action
+
+Transformation : RDD로 RDD를 만든다.
+
+* narrow transformation vs. wide transformation(셔플이 필요하다. action과 비슷하다)
+
+* Lazy-execution 한다 (Lineage만 만들고 쉰다)
+
+* 예시
+
+  > `filter(<리턴값이 boolean인 함수>)`
+
+Action : RDD로 다른타입의 데이터 만든다.
+
+* 실제 수행시작
+
+
 
 
 
